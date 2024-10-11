@@ -97,43 +97,106 @@ function validateRequired(input){
 }
 
 
-function InscrireUtilisateur(){
+// Korrigierte Version des Fetch-Requests
+function InscrireUtilisateur() {
+    let dataForm = new FormData(formInscription);
 
-let dataForm = new FormData(formInscription);
+    let myHeaders = new Headers();
+    myHeaders.append("Content-Type", "application/json");
 
-let myHeaders = new Headers();
-myHeaders.append("Content-Type", "application/json");
+    let raw = JSON.stringify({
+        "firstName": dataForm.get("nom"),
+        "lastName": dataForm.get("prenom"),
+        "email": dataForm.get("email"),
+        "password": dataForm.get("mdp")
+    });
 
-let raw = JSON.stringify({
-    "firstName": dataForm.get("nom"),
-    "lastName": dataForm.get("prenom"),
-    "email": dataForm.get("email"),
-    "password": dataForm.get("mdp")
-});
+    let requestOptions = {
+        method: "POST",
+        headers: myHeaders,
+        body: raw,
+        redirect: "follow"
+    };
 
-let requestOptions = {
-  method: "POST",
-  headers: myHeaders,
-  body: raw,
-  redirect: "follow"
-};
-
-fetch(apiUrl+"registration", requestOptions)
-.then(response => {
-    if(response.ok){
-        return response.json();
-    }
-    else{
-        alert("Erreur lors de l'inscription");
-    }
-})
-.then(result => {
-    alert("Bravo "+dataForm.get("prenom")+", vous êtes maintenant inscrit, vous pouvez vous connecter.");
-    document.location.href="/signin";
-})
-.catch(error => console.log('error', error));
+    // Korrigierte URL
+    fetch(apiUrl, requestOptions)
+        .then(response => {
+            if (response.ok) {
+                return response.json();
+            } else {
+                return response.text().then(text => { throw new Error(text) });
+            }
+        })
+        .then(result => {
+            alert("Bravo " + dataForm.get("prenom") + ", vous êtes maintenant inscrit, vous pouvez vous connecter.");
+            document.location.href = "/signin";
+        })
+        .catch(error => {
+            console.log('error', error);
+            alert("Erreur lors de l'inscription: " + error.message);
+        });
 }
 
 
 
+/*
 
+const inputNom = document.getElementById("NomInput");
+const inputPreNom = document.getElementById("PrenomInput");
+const inputMail = document.getElementById("EmailInput");
+const inputPassword = document.getElementById("PasswordInput");
+const inputValidationPassword = document.getElementById("ValidatePasswordInput");
+const btnValidation = document.getElementById("btn-validation-inscription");
+const formInscription = document.getElementById("formulaireInscription");
+
+inputNom.addEventListener("keyup", validateForm); 
+inputPreNom.addEventListener("keyup", validateForm);
+inputMail.addEventListener("keyup", validateForm);
+inputPassword.addEventListener("keyup", validateForm);
+inputValidationPassword.addEventListener("keyup", validateForm);
+btnValidation.addEventListener("click", InscrireUtilisateur);
+
+function validateForm() {
+    const nomOk = validateRequired(inputNom);
+    const prenomOk = validateRequired(inputPreNom);
+    const mailOk = validateMail(inputMail);
+    const passwordOk = validatePassword(inputPassword); 
+    const passwordConfirmOk = validateConfirmationPassword(inputPassword, inputValidationPassword);
+
+    if (nomOk && prenomOk && mailOk && passwordOk && passwordConfirmOk) {
+        btnValidation.disabled = false;
+    } else {
+        btnValidation.disabled = true;
+    }
+}
+
+function InscrireUtilisateur() {
+    let dataForm = new FormData(formInscription);
+
+    let requestOptions = {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            "username": dataForm.get("email"),
+            "password": dataForm.get("mdp"),
+            "nom": dataForm.get("nom"),
+            "prenom": dataForm.get("prenom")
+        }),
+        redirect: "follow"
+    };
+
+    fetch(apiUrl + "registration", requestOptions)
+    .then(response => {
+        if (response.ok) {
+            return response.json();
+        } else {
+            alert("Erreur lors de l'inscription");
+        }
+    })
+    .then(result => {
+        alert("Bravo " + dataForm.get("prenom") + ", vous êtes maintenant inscrit, vous pouvez vous connecter.");
+        document.location.href = "/signin";
+    })
+    .catch(error => console.log('error', error));
+}
+    */
